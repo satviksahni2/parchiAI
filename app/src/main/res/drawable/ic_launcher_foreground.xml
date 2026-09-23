@@ -1,0 +1,70 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Paper Sheet (Center safe area 26..82) -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M32,24 L66,24 L76,34 L76,84 C76,86.2 74.2,88 72,88 L32,88 C29.8,88 28,86.2 28,84 L28,28 C28,25.8 29.8,24 32,24 Z" />
+
+    <!-- Folded Paper Corner -->
+    <path
+        android:fillColor="#CBD5E1"
+        android:pathData="M66,24 L76,34 L66,34 Z" />
+    <path
+        android:fillColor="#94A3B8"
+        android:pathData="M66,34 L76,34 L66,24 Z" />
+
+    <!-- Invoice Header Bar -->
+    <path
+        android:fillColor="#1E3A8A"
+        android:pathData="M34,31 L62,31 A2,2 0 0,1 62,35 L34,35 A2,2 0 0,1 34,31 Z" />
+
+    <!-- Parsed Order Rows -->
+    <path
+        android:fillColor="#3B82F6"
+        android:pathData="M34,40 L60,40 A1.5,1.5 0 0,1 60,43 L34,43 A1.5,1.5 0 0,1 34,40 Z" />
+    <path
+        android:fillColor="#94A3B8"
+        android:pathData="M64,40 L70,40 A1.5,1.5 0 0,1 70,43 L64,43 A1.5,1.5 0 0,1 64,40 Z" />
+
+    <path
+        android:fillColor="#3B82F6"
+        android:pathData="M34,48 L56,48 A1.5,1.5 0 0,1 56,51 L34,51 A1.5,1.5 0 0,1 34,48 Z" />
+    <path
+        android:fillColor="#94A3B8"
+        android:pathData="M62,48 L70,48 A1.5,1.5 0 0,1 70,51 L62,51 A1.5,1.5 0 0,1 62,48 Z" />
+
+    <path
+        android:fillColor="#3B82F6"
+        android:pathData="M34,56 L52,56 A1.5,1.5 0 0,1 52,59 L34,59 A1.5,1.5 0 0,1 34,56 Z" />
+    <path
+        android:fillColor="#94A3B8"
+        android:pathData="M60,56 L70,56 A1.5,1.5 0 0,1 70,59 L60,59 A1.5,1.5 0 0,1 60,56 Z" />
+
+    <!-- Barcode at bottom of invoice -->
+    <path
+        android:fillColor="#64748B"
+        android:pathData="M34,65 L36,65 L36,73 L34,73 Z M38,65 L39.5,65 L39.5,73 L38,73 Z M42,65 L44.5,65 L44.5,73 L42,73 Z M46,65 L47,65 L47,73 L46,73 Z M49,65 L52,65 L52,73 L49,73 Z M54,65 L55.5,65 L55.5,73 L54,73 Z M58,65 L60.5,65 L60.5,73 L58,73 Z" />
+
+    <!-- Verified Catalog Match Badge (Bottom Right) -->
+    <path
+        android:fillColor="#10B981"
+        android:pathData="M66,66 C73.18,66 79,71.82 79,79 C79,86.18 73.18,92 66,92 C58.82,92 53,86.18 53,79 C53,71.82 58.82,66 66,66 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M64,83.5 L59,78.5 L60.8,76.7 L64,79.9 L71.2,72.7 L73,74.5 Z" />
+
+    <!-- Mini Wholesale Carton Package Accent (Top Left) -->
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M24,20 L33,25 L33,35 L24,30 Z" />
+    <path
+        android:fillColor="#D97706"
+        android:pathData="M33,25 L42,20 L42,30 L33,35 Z" />
+    <path
+        android:fillColor="#FBBF24"
+        android:pathData="M24,20 L33,15 L42,20 L33,25 Z" />
+</vector>

@@ -1,0 +1,6 @@
+{
+  "name": "OrderParse B2B",
+  "description": "B2B Order and Invoice Parsing Assistant for wholesale distributors to extract, normalize, and match retail orders against product catalogs with JSON export.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
