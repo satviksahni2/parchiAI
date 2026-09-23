@@ -65,3 +65,4 @@ class HealthResponse(BaseModel):
     version: str
     gemini_configured: bool
     whatsapp_configured: bool
+    sheets_configured: bool = False

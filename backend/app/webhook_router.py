@@ -10,6 +10,7 @@ from app.config import settings
 from app.models import DirectParseRequest, DirectParseResponse, HealthResponse, OrderResult
 from app.gemini_service import gemini_service
 from app.whatsapp_service import whatsapp_service
+from app.sheets_service import sheets_service
 
 logger = logging.getLogger("DistriParse.WebhookRouter")
 
@@ -108,6 +109,12 @@ async def receive_whatsapp_webhook(request: Request):
             metadata = val.get("metadata", {})
             phone_number_id = metadata.get("phone_number_id", "")
 
+            # Extract sender profile name if provided by Meta WhatsApp
+            contacts = val.get("contacts", [])
+            sender_name = "Unknown Retailer"
+            if isinstance(contacts, list) and contacts:
+                sender_name = contacts[0].get("profile", {}).get("name", "Unknown Retailer")
+
             if not isinstance(messages, list) or not messages:
                 # Status update event (e.g. read, delivered, sent)
                 continue
@@ -121,7 +128,7 @@ async def receive_whatsapp_webhook(request: Request):
                 msg_id = msg.get("id")
 
                 logger.info(
-                    f"Processing message {msg_id} from {sender_phone} of type '{msg_type}'"
+                    f"Processing message {msg_id} from {sender_phone} ({sender_name}) of type '{msg_type}'"
                 )
 
                 if msg_type == "text":
@@ -129,13 +136,28 @@ async def receive_whatsapp_webhook(request: Request):
                     order_text = text_obj.get("body", "")
 
                     if order_text.strip():
-                        # Parse order with Gemini (or fallback engine on error/timeout)
-                        order_result, source = await gemini_service.parse_order(order_text)
+                        # 1. Fetch dynamic catalog from Google Sheets if connected
+                        dynamic_catalog = sheets_service.get_dynamic_catalog()
+
+                        # 2. Parse order with Gemini (or fallback engine on error/timeout)
+                        order_result, source = await gemini_service.parse_order(
+                            text=order_text,
+                            sender_name=sender_name,
+                            custom_catalog=dynamic_catalog
+                        )
                         logger.info(
                             f"Order parsed successfully ({source}): {len(order_result.line_items)} items."
                         )
 
-                        # Format reply and send back to retailer
+                        # 3. Append parsed order directly to Google Sheets
+                        if sheets_service.is_connected:
+                            sheets_service.log_order_to_sheets(
+                                name=sender_name,
+                                phone=sender_phone or "",
+                                order=order_result
+                            )
+
+                        # 4. Format reply and send back to retailer
                         if sender_phone:
                             reply_text = whatsapp_service.format_confirmation_message(order_result)
                             await whatsapp_service.send_text_message(
@@ -178,5 +200,6 @@ async def health_check():
         status="healthy",
         version="1.0.0",
         gemini_configured=bool(settings.GEMINI_API_KEY),
-        whatsapp_configured=bool(settings.WHATSAPP_TOKEN)
+        whatsapp_configured=bool(settings.WHATSAPP_TOKEN),
+        sheets_configured=sheets_service.is_connected
     )

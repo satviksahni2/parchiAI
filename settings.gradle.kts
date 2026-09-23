@@ -22,6 +22,6 @@ dependencyResolutionManagement {
   }
 }
 
-rootProject.name = "OrderParse B2B"
+rootProject.name = "Parchi"
 
 include(":app")

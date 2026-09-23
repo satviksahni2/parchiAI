@@ -82,7 +82,7 @@ fun DistributorSettingsScreen(
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         Text(
-                            text = "Auto-PO / DistriParse",
+                            text = "Parchi",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )

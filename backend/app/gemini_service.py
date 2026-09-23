@@ -33,15 +33,21 @@ class GeminiService:
             logger.warning("GEMINI_API_KEY is not set. Service will use deterministic fallback engine.")
             self._client = None
 
-    async def parse_order(self, text: str) -> Tuple[OrderResult, str]:
+    async def parse_order(
+        self,
+        text: str,
+        sender_name: Optional[str] = None,
+        custom_catalog: Optional[str] = None
+    ) -> Tuple[OrderResult, str]:
         """
         Parses raw text using Gemini 2.5 Flash with strict Pydantic JSON schema.
+        Accepts optional dynamic catalog (e.g. from Google Sheets) and sender_name.
         Returns a tuple of (OrderResult, source_name).
         Handles timeouts and errors gracefully with fallback parsing.
         """
         if not text or not text.strip():
             return OrderResult(
-                retailer_name=None,
+                retailer_name=sender_name,
                 order_date=datetime.now().strftime("%Y-%m-%d"),
                 line_items=[],
                 order_notes="Empty or blank message received."
@@ -49,35 +55,62 @@ class GeminiService:
 
         if not self._client:
             logger.info("No Gemini client available; using deterministic fallback parser.")
-            return self._deterministic_fallback_parse(text), "deterministic_fallback"
+            fallback = self._deterministic_fallback_parse(text)
+            if sender_name and not fallback.retailer_name:
+                fallback.retailer_name = sender_name
+            return fallback, "deterministic_fallback"
 
         # Execute Gemini API call in a worker thread with strict timeout
         try:
             order_result = await asyncio.wait_for(
-                asyncio.to_thread(self._sync_call_gemini, text),
+                asyncio.to_thread(self._sync_call_gemini, text, sender_name, custom_catalog),
                 timeout=settings.GEMINI_TIMEOUT_SECONDS
             )
+            if sender_name and not order_result.retailer_name:
+                order_result.retailer_name = sender_name
             return order_result, "gemini"
         except asyncio.TimeoutError:
             logger.error(f"Gemini API timed out after {settings.GEMINI_TIMEOUT_SECONDS}s. Running fallback parser.")
             fallback = self._deterministic_fallback_parse(text)
+            if sender_name and not fallback.retailer_name:
+                fallback.retailer_name = sender_name
             fallback.order_notes = (fallback.order_notes or "") + " [Processed via offline fallback due to API timeout]"
             return fallback, "timeout_fallback"
         except Exception as e:
             logger.error(f"Gemini API error during generation: {e}. Running fallback parser.")
             fallback = self._deterministic_fallback_parse(text)
+            if sender_name and not fallback.retailer_name:
+                fallback.retailer_name = sender_name
             fallback.order_notes = (fallback.order_notes or "") + " [Processed via offline fallback due to API error]"
             return fallback, "error_fallback"
 
-    def _sync_call_gemini(self, text: str) -> OrderResult:
+    def _sync_call_gemini(
+        self,
+        text: str,
+        sender_name: Optional[str] = None,
+        custom_catalog: Optional[str] = None
+    ) -> OrderResult:
         """Synchronous wrapper for google-genai generate_content."""
         from google.genai import types
+
+        if custom_catalog and custom_catalog.strip():
+            system_instruction = f"""
+You are ParchAI, a B2B Order Parsing Assistant for wholesale distributors.
+Extract order requests from the message sent by retailer {sender_name or 'Unknown Retailer'}.
+Map the items strictly against this [DYNAMIC PRODUCT CATALOG]:
+{custom_catalog}
+
+Standardize units into: box, strip, pieces, bag, bucket, can, bottle, tube, roll.
+If an item is not in the catalog, set matched_in_catalog=false and item_code=null.
+"""
+        else:
+            system_instruction = SYSTEM_INSTRUCTION
 
         response = self._client.models.generate_content(
             model=settings.GEMINI_MODEL,
             contents=text,
             config=types.GenerateContentConfig(
-                system_instruction=SYSTEM_INSTRUCTION,
+                system_instruction=system_instruction,
                 temperature=0.0,
                 response_mime_type="application/json",
                 response_schema=OrderResult,

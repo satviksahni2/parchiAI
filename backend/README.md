@@ -1,6 +1,6 @@
-# WhatsApp B2B Order & Invoice Parser Backend (DistriParse / Auto-PO)
+# WhatsApp B2B Order & Invoice Parser Backend (ParchAI / Parchi)
 
-A production-grade Python backend built with **FastAPI**, **Google Gemini 2.5 Flash** (`google-genai` SDK), and **Meta WhatsApp Cloud API**.
+A production-grade Python backend built with **FastAPI**, **Google Gemini 2.5 Flash** (`google-genai` SDK), **Meta WhatsApp Cloud API**, and **Google Sheets** (`gspread`).
 
 ---
 
@@ -15,10 +15,12 @@ A production-grade Python backend built with **FastAPI**, **Google Gemini 2.5 Fl
          ▼  (HTTPS POST /webhook)
 [ FastAPI Server (Render / Railway) ]
     ├── Webhook Router (HMAC & Challenge Handshake GET /webhook)
+    ├── Google Sheets Service (Dynamic Catalog & Order Logging)
+    │     ├── Live Read: "Catalog" worksheet (User SKU mapping)
+    │     └── Live Write: "Orders" worksheet (Append pending orders)
     ├── Gemini Service (Gemini 2.5 Flash + Strict Pydantic Schema)
     │     └── [Fallback Engine (Timeout / Offline Resilience)]
-    ├── WhatsApp Service (Async Outbound Reply via Meta Graph API)
-    └── Downstream (ERP / Tally / Accounting / Google Sheets)
+    └── WhatsApp Service (Async Outbound Reply via Meta Graph API)
 ```
 
 ### Pydantic Output Contract (`OrderResult`)

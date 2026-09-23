@@ -65,7 +65,7 @@ fun AppTopBar(
             Column(modifier = Modifier.weight(1f)) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
-                        text = "Auto-PO / DistriParse",
+                        text = "Parchi",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
@@ -76,7 +76,7 @@ fun AppTopBar(
                         shape = RoundedCornerShape(4.dp)
                     ) {
                         Text(
-                            text = "DISTRIBUTOR",
+                            text = "B2B WHOLESALE",
                             style = MaterialTheme.typography.labelSmall,
                             fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -86,7 +86,7 @@ fun AppTopBar(
                     }
                 }
                 Text(
-                    text = "WhatsApp B2B Order & Invoice Parser",
+                    text = "WhatsApp Order & Invoice Parser",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
